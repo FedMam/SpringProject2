@@ -1,139 +1,76 @@
 package com.fedormamaevv.SpringProject1;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import org.apache.tomcat.util.json.JSONParser;
-import org.springframework.boot.jackson.JsonObjectDeserializer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class ApiController {
-    // ----
-    // Задание на оценку 3
-    // ----
 
-    private List<String> messages = new ArrayList<>();
+    private List<Topic> topics = new ArrayList<>();
 
-    // curl -X GET http://localhost:8080/messages
-    @GetMapping("messages")
-    public List<String> getMessages() {
-        return messages;
-    }
+    @PostMapping("topics")
+    public void addTopic(@RequestBody Topic topic) { topics.add(topic); }
 
-    // curl -X POST -H 'Content-Type: text/plain' -d 'Apple' http://localhost:8080/messages
-    @PostMapping("messages")
-    public void addMessage(@RequestBody String text) {
-        messages.add(text);
-    }
+    @DeleteMapping("topics/{index}")
+    public void removeTopic(@PathVariable("index") Integer index) { topics.remove((int)index); }
 
-    // curl -X GET http://localhost:8080/messages/0
-    @GetMapping("messages/{index}")
-    public String getMessage(@PathVariable("index") Integer index) {
-        return messages.get(index);
-    }
+    @GetMapping("topics")
+    public List<Topic> getAllTopics() { return topics; }
 
-    // curl -X DELETE http://localhost:8080/messages/3
-    @DeleteMapping("messages/{index}")
-    public void deleteText(@PathVariable("index") Integer index) {
-        messages.remove((int) index);
-    }
+    @GetMapping("topics/{index}")
+    public Topic getTopic(@PathVariable("index") Integer index) { return topics.get(index); }
 
-    // curl -X PUT -H 'Content-Type: text/plain' -d 'Mango' http://localhost:8080/messages/2
-    @PutMapping("messages/{index}")
-    public void updateMessage(@PathVariable("index") Integer i, @RequestBody String message) {
-        messages.remove((int) i);
-        messages.add(i, message);
-    }
+    @PutMapping("topics/{index}")
+    public void updateTopic(@PathVariable("index") Integer index, @RequestBody Topic newTopic) { topics.set(index, newTopic); }
 
-    // ----
-    // Задание на оценку 4
-    // ----
+    @GetMapping("topics/count")
+    public Integer count() { return topics.size(); }
 
-    // curl -X GET http://localhost:8080/messages/search/qwer
-    @GetMapping("messages/search/{text}")
-    public int searchForText(@PathVariable("text") String text) {
-        for (int index = 0; index < messages.size(); index++) {
-            if (messages.get(index).contains(text))
-                return index;
-        }
-        return -1;
-    }
+    @DeleteMapping("topics/clear")
+    public void clear() { topics.clear(); }
 
-    // curl -X GET http://localhost:8080/messages/count
-    @GetMapping("messages/count")
-    public int getCount() {
-        return messages.size();
-    }
+    // -----
 
-    // curl -X POST -H 'Content-Type: text/plain' -d 'Banana' http://localhost:8080/messages/3/create
-    @PostMapping("messages/{index}/create")
-    public void insertMessage(@PathVariable("index") Integer index, @RequestBody String text) {
-        messages.add(index, text);
-    }
-
-    // curl -X DELETE http://localhost:8080/messages/search/abc
-    @DeleteMapping("messages/search/{text}")
-    public void deleteByText(@PathVariable("text") String text) {
-        int index = 0;
-        while (index < messages.size()) {
-            if (messages.get(index).contains(text))
-                messages.remove(index);
-            else
-                index++;
-        }
-    }
-
-    // ----
-    // Задание на оценку 5
-    // ----
-
-    private List<User> users = new ArrayList<>();
-
-    // curl -X POST -H 'Content-Type: application/json' -d '{ "name": "Michel", "age": "30" }' http://localhost:8080/users
-    @PostMapping("users")
-    public void addUser(@RequestBody User user)
+    @PostMapping("topics/{index}/comments")
+    public void addComment(@PathVariable("index") Integer topicIndex, @RequestBody Comment comment)
     {
-        users.add(user);
+        Topic topic = topics.get(topicIndex);
+        topic.addComment(comment);
+        topics.set(topicIndex, topic);
     }
 
-    // curl -X GET http://localhost:8080/users/0
-    @GetMapping("users/{index}")
-    public User getUser(@PathVariable("index") Integer index)
+    @GetMapping("topics/{index}/comments")
+    public List<Comment> getAllComments(@PathVariable("index") Integer topicIndex)
     {
-        return users.get(index);
+        return topics.get(topicIndex).getComments();
     }
 
-    // curl -X GET http://localhost:8080/users
-    @GetMapping("users")
-    public List<User> getUsers()
+    @GetMapping("topics/{tIndex}/comments/{cIndex}")
+    public Comment getComment(@PathVariable("tIndex") Integer topicIndex, @PathVariable("cIndex") Integer commentIndex)
     {
-        return users;
+        return topics.get(topicIndex).getComment(commentIndex);
     }
 
-    // curl -X DELETE http://localhost:8080/users/0
-    @DeleteMapping("users/{index}")
-    public void deleteUser(@PathVariable("index") Integer index)
+    @PutMapping("topics/{tIndex}/comments/{cIndex}")
+    public void updateComment(@PathVariable("tIndex") Integer topicIndex, @PathVariable("cIndex") Integer commentIndex, @RequestBody Comment comment)
     {
-        users.remove((int) index);
+        Topic topic = topics.get(topicIndex);
+        topic.updateComment(commentIndex, comment);
+        topics.set(topicIndex, topic);
     }
 
-    // curl -X PUT http://localhost:8080/users/0/set-age/16
-    @PutMapping("users/{index}/set-age/{age}")
-    public void updateAge(@PathVariable("index") Integer index, @PathVariable("age") Integer age)
+    @DeleteMapping("topics/{tIndex}/comments/{cIndex}")
+    public void deleteComment(@PathVariable("tIndex") Integer topicIndex, @PathVariable("cIndex") Integer commentIndex)
     {
-        User user = users.get(index);
-        user.setAge(age);
-        users.set(index, user);
+        Topic topic = topics.get(topicIndex);
+        topic.deleteComment(commentIndex);
+        topics.set(topicIndex, topic);
     }
 
-    // ----
+    // -----
+
 }
