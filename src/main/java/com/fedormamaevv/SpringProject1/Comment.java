@@ -1,8 +1,12 @@
 package com.fedormamaevv.SpringProject1;
 
+import java.util.Date;
+
 public class Comment {
     public String text;
     public String username;
+    public Date created;
+    public Date updated;
 
     public String getText() { return text; }
     public void setText(String text) { this.text = text; }

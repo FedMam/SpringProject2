@@ -1,11 +1,14 @@
 package com.fedormamaevv.SpringProject1;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Topic {
     public String name;
     public List<Comment> comments = new ArrayList<>();
+    public Date created;
+    public Date updated;
 
     public Topic(String name) {
         this.name = name;
