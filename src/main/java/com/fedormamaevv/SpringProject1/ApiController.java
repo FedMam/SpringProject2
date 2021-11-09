@@ -27,28 +27,24 @@ public class ApiController {
     {
         Topic[] topicArray = topics.toArray(new Topic[0]);
         if (sort_by.compareTo("created") == 0 || sort_by.compareTo("updated") == 0) {
-            Arrays.sort(topicArray, new Comparator<Topic>() {
-                @Override
-                public int compare(Topic topic, Topic t1) {
-                    
-                    int rev = 1;
-                    if (sort_order.compareTo("descending") == 0) rev = -1;
-                    if (sort_by.compareTo("created") == 0) {
-                        if (topic.created == null) return -rev;
-                        if (t1.created == null) return rev;
-                        return rev * topic.created.compareTo(t1.created);
-                    }
-                    else {
-                        if (topic.updated == null) return -rev;
-                        if (t1.updated == null) return rev;
-                        return rev * topic.updated.compareTo(t1.updated);
-                    }
+            Arrays.sort(topicArray, (topic, t1) -> {
+
+                int rev = 1;
+                if (sort_order.compareTo("descending") == 0) rev = -1;
+                if (sort_by.compareTo("created") == 0) {
+                    if (topic.created == null) return -rev;
+                    if (t1.created == null) return rev;
+                    return rev * topic.created.compareTo(t1.created);
+                }
+                else {
+                    if (topic.updated == null) return -rev;
+                    if (t1.updated == null) return rev;
+                    return rev * topic.updated.compareTo(t1.updated);
                 }
             });
         }
         List<Topic> topicList = new ArrayList<>();
-        for (Topic topic: topicArray)
-            topicList.add(topic);
+        Collections.addAll(topicList, topicArray);
         return topicList;
     }
 
@@ -56,27 +52,23 @@ public class ApiController {
     {
         Comment[] commentArray = comments.toArray(new Comment[0]);
         if (sort_by.compareTo("created") == 0 || sort_by.compareTo("updated") == 0) {
-            Arrays.sort(commentArray, new Comparator<Comment>() {
-                @Override
-                public int compare(Comment comment, Comment t1) {
-                    int rev = 1;
-                    if (sort_order.compareTo("descending") == 0) rev = -1;
-                    if (sort_by.compareTo("created") == 0) {
-                        if (comment.created == null) return -rev;
-                        if (t1.created == null) return rev;
-                        return rev * comment.created.compareTo(t1.created);
-                    }
-                    else {
-                        if (comment.updated == null) return -rev;
-                        if (t1.updated == null) return rev;
-                        return rev * comment.updated.compareTo(t1.updated);
-                    }
+            Arrays.sort(commentArray, (comment, t1) -> {
+                int rev = 1;
+                if (sort_order.compareTo("descending") == 0) rev = -1;
+                if (sort_by.compareTo("created") == 0) {
+                    if (comment.created == null) return -rev;
+                    if (t1.created == null) return rev;
+                    return rev * comment.created.compareTo(t1.created);
+                }
+                else {
+                    if (comment.updated == null) return -rev;
+                    if (t1.updated == null) return rev;
+                    return rev * comment.updated.compareTo(t1.updated);
                 }
             });
         }
         List<Comment> commentList = new ArrayList<>();
-        for (Comment comment: commentArray)
-            commentList.add(comment);
+        Collections.addAll(commentList, commentArray);
         return commentList;
     }
 
@@ -277,7 +269,7 @@ public class ApiController {
             System.out.println("Index out of range");
             return;
         }
-        int commentIndex = -1;
+        int commentIndex;
         try {
             commentIndex = Integer.parseInt(index);
         }
